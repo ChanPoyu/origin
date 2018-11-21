@@ -14,13 +14,16 @@ import {
 } from '@blueprintjs/core'
 
 import BottomScrollListener from 'components/BottomScrollListener'
-import { get, set } from 'utils/store'
+import store from 'utils/store'
 
 import ListingsList from './_ListingsList'
 import ListingsGallery from './_ListingsGallery'
 import CreateListing from './mutations/CreateListing'
 
 import query from './queries/_listings'
+
+const memStore = store('memory')
+const localStore = store('localStorage')
 
 function nextPage(fetchMore, vars) {
   fetchMore({
@@ -46,10 +49,10 @@ function nextPage(fetchMore, vars) {
 
 class Listings extends Component {
   state = {
-    mode: get('listingsPage.mode', 'gallery'),
+    mode: localStore.get('listingsPage.mode', 'gallery'),
     hidden: false,
-    search: '',
-    activeSearch: ''
+    search: memStore.get('listingsPage.search', ''),
+    activeSearch: memStore.get('listingsPage.search')
   }
 
   render() {
@@ -151,6 +154,7 @@ class Listings extends Component {
                 onKeyUp={e => {
                   if (e.keyCode === 13) {
                     this.setState({ activeSearch: this.state.search })
+                    memStore.set('listingsPage.search', this.state.search)
                   }
                 }}
                 rightElement={
@@ -158,18 +162,20 @@ class Listings extends Component {
                     <Button
                       minimal={true}
                       icon="cross"
-                      onClick={() =>
+                      onClick={() => {
                         this.setState({ activeSearch: '', search: '' })
-                      }
+                        memStore.set('listingsPage.search', '')
+                      }}
                     />
                   ) : null
                 }
               />
               <Button
                 icon="search"
-                onClick={() =>
+                onClick={() => {
                   this.setState({ activeSearch: this.state.search })
-                }
+                  memStore.set('listingsPage.search', this.state.search)
+                }}
               />
             </ControlGroup>
           )}
@@ -184,7 +190,7 @@ class Listings extends Component {
                 icon="media"
                 active={this.state.mode === 'gallery'}
                 onClick={() => {
-                  set('listingsPage.mode', 'gallery')
+                  localStore.set('listingsPage.mode', 'gallery')
                   this.setState({ mode: 'gallery' })
                 }}
               />
@@ -194,7 +200,7 @@ class Listings extends Component {
                 icon="list"
                 active={this.state.mode === 'list'}
                 onClick={() => {
-                  set('listingsPage.mode', 'list')
+                  localStore.set('listingsPage.mode', 'list')
                   this.setState({ mode: 'list' })
                 }}
               />

@@ -8,6 +8,7 @@ import BottomScrollListener from 'components/BottomScrollListener'
 
 import Address from 'components/Address'
 import Identity from 'components/Identity'
+import ThSort from 'components/ThSort'
 
 const UsersQuery = gql`
   query Users($first: Int, $after: String, $sort: String) {
@@ -74,7 +75,7 @@ class Users extends Component {
       <div className="mt-3 ml-3">
         <Query
           query={UsersQuery}
-          variables={{ offset: 0, limit: 20 }}
+          variables={vars}
           notifyOnNetworkStatusChange={true}
         >
           {({ data, error, fetchMore, networkStatus }) => {
@@ -116,10 +117,10 @@ class Users extends Component {
                       <tr>
                         <th>Account</th>
                         <th>Identity</th>
-                        <th>Listings</th>
-                        <th>Offers</th>
-                        <th>First Action</th>
-                        <th>Last Action</th>
+                        <ThSort onSort={() => this.setState({ sort: 'listings' })}>Listings</ThSort>
+                        <ThSort onSort={() => this.setState({ sort: 'offers' })}>Offers</ThSort>
+                        <ThSort onSort={() => this.setState({ sort: 'firstAction' })}>First Action</ThSort>
+                        <ThSort onSort={() => this.setState({ sort: 'lastAction' })}>Last Action</ThSort>
                       </tr>
                     </thead>
                     <tbody>
@@ -139,8 +140,12 @@ class Users extends Component {
                             </td>
                             <td>{user.listings.totalCount}</td>
                             <td>{user.offers.totalCount}</td>
-                            <td>{formatDate(get(user, 'firstEvent.timestamp'))}</td>
-                            <td>{formatDate(get(user, 'lastEvent.timestamp'))}</td>
+                            <td>
+                              {formatDate(get(user, 'firstEvent.timestamp'))}
+                            </td>
+                            <td>
+                              {formatDate(get(user, 'lastEvent.timestamp'))}
+                            </td>
                           </tr>
                         )
                       })}
